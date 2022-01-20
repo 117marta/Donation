@@ -13,9 +13,15 @@ class LandingPage(View):
     def get(self, request):
         # bag_count = Donation.objects.all().count()
         institution_count = len(Institution.objects.all().distinct())  # bez duplikatów
+        items = [Institution.objects.filter(type=1),
+                 Institution.objects.filter(type=2),
+                 Institution.objects.filter(type=3),
+                 ]
         ctx = {
             'bag_count': self.bag_count_quantity,
-            'institution_count': institution_count}
+            'institution_count': institution_count,
+            'items': items,
+        }
         return render(request, 'donation_app/index.html', context=ctx)
 
 
