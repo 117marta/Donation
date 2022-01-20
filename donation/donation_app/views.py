@@ -1,9 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from .models import Category, Institution, Donation
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.db import IntegrityError
 
 
 class LandingPage(View):
+
     def bag_count_quantity(self):
         total = 0
         for bag in Donation.objects.all():
@@ -36,5 +40,35 @@ class Login(View):
 
 
 class Register(View):
+
     def get(self, request):
         return render(request, 'donation_app/register.html')
+
+    def post(self, request):
+        name = request.POST.get('name')
+        surname = request.POST.get('surname')
+        email = request.POST.get('email').casefold()
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        if password != password2:
+            messages.error(request, 'Hasła muszą być takie same!')
+            return redirect('register')
+
+        else:
+            try:
+                user = User.objects.create_user(
+                    username=email,
+                    first_name=name,
+                    last_name=surname,
+                    email=email,
+                )
+                user.set_password(password)  # aby zapisać jako zahaszowane hasło
+                user.save()
+
+                messages.success(request, 'Pomyślnie utworzono konto.')
+                messages.success(request, 'Możesz się teraz zalogować.')
+                return redirect('/login/')
+            except IntegrityError:
+                messages.error(request, 'Podany e-mail już istnieje!')
+                return redirect('register')
