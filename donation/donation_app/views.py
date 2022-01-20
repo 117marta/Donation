@@ -4,7 +4,7 @@ from .models import Category, Institution, Donation
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import check_password
 
@@ -61,6 +61,13 @@ class Login(View):
         except ObjectDoesNotExist:
             messages.error(request, 'Nie ma takiego użytkownika!')
             return redirect('register')
+
+
+class Logout(View):
+
+    def get(self, request):
+        logout(request)
+        return redirect('/')
 
 
 class Register(View):
