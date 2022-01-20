@@ -4,6 +4,9 @@ from .models import Category, Institution, Donation
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db import IntegrityError
+from django.contrib.auth import authenticate, login
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.hashers import check_password
 
 
 class LandingPage(View):
@@ -35,8 +38,29 @@ class AddDonation(View):
 
 
 class Login(View):
+
     def get(self, request):
         return render(request, 'donation_app/login.html')
+
+    def post(self, request):
+        try:
+            username = request.POST.get('email')
+            password = request.POST.get('password')
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                messages.success(request, 'Zalogowano!')
+                return redirect('index')
+            elif not User.objects.get(email=username).check_password(password):
+                messages.error(request, 'Błędne hasło!')
+                return redirect('login')
+            else:
+                messages.error(request, 'Błędne logowanie!')
+                return redirect('login')
+        except ObjectDoesNotExist:
+            messages.error(request, 'Nie ma takiego użytkownika!')
+            return redirect('register')
 
 
 class Register(View):
