@@ -1,0 +1,11 @@
+{% extends 'donation_app/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="slogan container container--90 text-center">
+    <h1>Imię: {{ object.first_name }}</h1><br>
+    <h1>Nazwisko: {{ object.last_name }}</h1><br>
+    <h1>E-mail: {{ object.email }}</h1>
+</div>
+{% endblock content %}

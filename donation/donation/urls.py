@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from donation_app.views import LandingPage, AddDonation, Login, Register, Logout
+from donation_app.views import LandingPage, AddDonation, Login, Register, Logout, Profile
 from django.contrib.auth import views
 
 
@@ -26,4 +26,5 @@ urlpatterns = [
     path('login/', Login.as_view(), name='login'),
     path('register/', Register.as_view(), name='register'),
     path('logout/', Logout.as_view(), name='logout'),
+    path('profile/', Profile.as_view(), name='profile'),
 ]

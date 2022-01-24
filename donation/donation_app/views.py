@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from .models import Category, Institution, Donation
 from django.contrib.auth.models import User
@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView
 
 
 class LandingPage(View):
@@ -111,3 +112,12 @@ class Register(View):
             except IntegrityError:
                 messages.error(request, 'Podany e-mail już istnieje!')
                 return redirect('register')
+
+
+class Profile(LoginRequiredMixin, DetailView):
+    model = User
+    template_name = 'donation_app/profile.html'
+
+    def get_object(self, **kwargs):
+        user_id = self.request.user.id
+        return get_object_or_404(User, pk=user_id)
