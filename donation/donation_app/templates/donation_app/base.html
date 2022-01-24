@@ -19,6 +19,9 @@
             <ul class="dropdown">
               <li><a href="#" class="btn btn--small btn--without-border">Profil</a></li>
               <li><a href="#" class="btn btn--small btn--without-border">Ustawienia</a></li>
+              {% if request.user.is_superuser %}
+                <li><a href="/admin/" class="btn btn--small btn--without-border">Panel administracyjny</a></li>
+              {% endif %}
               <li><a href="{% url 'logout' %}" class="btn btn--small btn--without-border">Wyloguj</a></li>
             </ul>
           </li>
