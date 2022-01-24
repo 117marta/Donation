@@ -7,6 +7,7 @@ from django.db import IntegrityError
 from django.contrib.auth import authenticate, login, logout
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class LandingPage(View):
@@ -32,9 +33,14 @@ class LandingPage(View):
         return render(request, 'donation_app/index.html', context=ctx)
 
 
-class AddDonation(View):
+class AddDonation(LoginRequiredMixin, View):
+    login_url = '/login/'
+    redirect_field_name = '/add_donation/'
+
     def get(self, request):
-        return render(request, 'donation_app/form.html')
+        institutions = Institution.objects.all()
+        categories = Category.objects.all()
+        return render(request, 'donation_app/form.html', {'institutions': institutions, 'categories': categories})
 
 
 class Login(View):
