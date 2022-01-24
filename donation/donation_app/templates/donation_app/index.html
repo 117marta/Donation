@@ -96,7 +96,7 @@
             <div class="col">
               <div class="text">
               {% for category in i.categories.all %}
-                {{ category.name }}
+                {{ category.name }}{% if not forloop.last %}, {% endif %}
               {% endfor %}
               </div>
             </div>
