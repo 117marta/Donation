@@ -39,8 +39,10 @@ class AddDonation(LoginRequiredMixin, View):
 
     def get(self, request):
         institutions = Institution.objects.all()
-        categories = Category.objects.all()
-        return render(request, 'donation_app/form.html', {'institutions': institutions, 'categories': categories})
+        categories = Category.objects.all().order_by('pk')
+        inst_cat = Institution.categories.through.objects.all()
+        ctx = {'institutions': institutions, 'categories': categories, 'inst_cat': inst_cat}
+        return render(request, 'donation_app/form.html', context=ctx)
 
 
 class Login(View):
