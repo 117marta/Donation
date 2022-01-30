@@ -154,9 +154,12 @@ class Register(View):
                 return redirect('register')
 
 
-class Profile(LoginRequiredMixin, DetailView):
-    model = User
-    template_name = 'donation_app/profile.html'
+class Profile(LoginRequiredMixin, View):
+    login_url = '/login/'
+
+    def get(self, request):
+        donations = Donation.objects.filter(user=request.user)
+        return render(request, 'donation_app/profile.html', {'donations': donations})
 
     def get_object(self, **kwargs):
         user_id = self.request.user.id

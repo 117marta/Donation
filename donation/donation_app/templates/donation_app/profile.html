@@ -3,9 +3,41 @@
 
 
 {% block content %}
-<div class="slogan container container--90 text-center">
-    <h1>Imię: {{ object.first_name }}</h1><br>
-    <h1>Nazwisko: {{ object.last_name }}</h1><br>
-    <h1>E-mail: {{ object.email }}</h1>
+<div class="container">
+    <div>
+        <div class="slogan container container--90 text-center">
+            <h2>Imię: {{ user.first_name }}</h2><br>
+            <h2>Nazwisko: {{ user.last_name }}</h2><br>
+            <h2>E-mail: {{ user.email }}</h2>
+        </div>
+    </div>
+
+    <h1>Przekazane dary:</h1>
+    <table class="donation--table">
+        <tr>
+            <th>Organizacja</th>
+            <th>Ilość worków</th>
+            <th>Zawartość</th>
+            <th>Data odbioru</th>
+            <th>Godzina</th>
+            <th>Status</th>
+        </tr>
+        {% for donation in donations %}
+            <tr class="donation--table--header">
+                <td>{{ donation.institution.name }}</td>
+                <td>{{ donation.quantity }}</td>
+                <td>{% for category in donation.categories.all %}
+                        {{ category.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}</td>
+                <td>{{ donation.pick_up_date }}</td>
+                <td>{{ donation.pick_up_time }}</td>
+                {% if donation.picked_up %}
+                    <td style="color: greenyellow">Odebrano
+                {% else %}
+                    <td style="color: red">Oczekuje
+                {% endif %}</td>
+            </tr>
+        {% endfor %}
+    </table>
 </div>
 {% endblock content %}
