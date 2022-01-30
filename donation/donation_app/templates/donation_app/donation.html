@@ -24,6 +24,12 @@
     <h4>Data przekazania rzeczy: {{ donation.pick_up_date|date:"d E Y, l" }}</h4>
     <h4>Godzina przekazania rzeczy: {{ donation.pick_up_time|time:"H:i"}}</h4>
     <h4>Komentarz: {{ donation.pick_up_comment }}</h4>
+    <h4>Status daru:
+        {% if donation.is_taken == True %}
+            ODEBRANO - dnia {{ donation.date_taken|date:"d E Y"}} o godzinie {{ donation.date_taken|date:"H:i"}}
+        {% else %} NIE ODEBRANO
+        {% endif %}
+    </h4>
 
 
     <form method="post">

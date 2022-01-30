@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -38,6 +40,8 @@ class Donation(models.Model):
     pick_up_comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     is_taken = models.BooleanField(default=False)
+    date_taken = models.DateTimeField(null=True)
+    date_add = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
 

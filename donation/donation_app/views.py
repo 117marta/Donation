@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView
+import datetime
 
 
 class LandingPage(View):
@@ -158,7 +159,7 @@ class Profile(LoginRequiredMixin, View):
     login_url = '/login/'
 
     def get(self, request):
-        donations = Donation.objects.filter(user=request.user).order_by('is_taken')
+        donations = Donation.objects.filter(user=request.user).order_by('is_taken', 'date_taken', 'date_add')
         return render(request, 'donation_app/profile.html', {'donations': donations})
 
 
@@ -174,6 +175,8 @@ class DonationDetail(View):
         donation = Donation.objects.get(pk=donation_id)
         if status == 'taken':
             donation.is_taken = True
+            now = datetime.datetime.now()
+            donation.date_taken = now
             donation.save()
         else:
             donation.is_taken = False

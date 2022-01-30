@@ -22,22 +22,34 @@
             <th>Data odbioru</th>
             <th>Godzina</th>
             <th>Status</th>
+            <th>Data odebrania</th>
+            <th>Data dodania wpisu</th>
         </tr>
         {% for donation in donations %}
             <tr class="donation--table--header">
                 <td><a href="/donation/{{ donation.pk }}">{{ forloop.counter }}</a></td>
                 <td>{{ donation.institution.name }}</td>
                 <td>{{ donation.quantity }}</td>
-                <td>{% for category in donation.categories.all %}
+                <td>
+                    {% for category in donation.categories.all %}
                         {{ category.name }}{% if not forloop.last %}, {% endif %}
-                    {% endfor %}</td>
+                    {% endfor %}
+                </td>
                 <td>{{ donation.pick_up_date }}</td>
                 <td>{{ donation.pick_up_time }}</td>
-                {% if donation.is_taken %}
-                    <td style="color: greenyellow">Odebrano
-                {% else %}
-                    <td style="color: red">Oczekuje
-                {% endif %}</td>
+                    {% if donation.is_taken %}
+                        <td style="color: greenyellow">Odebrano
+                    {% else %}
+                        <td style="color: red">Oczekuje
+                    {% endif %}</td>
+                <td>
+                    {% if donation.is_taken == True %}
+                        {{ donation.date_taken|date:"d E Y, H:i, l" }}
+                    {% else %}
+                        Nie odebrano
+                    {% endif %}
+                </td>
+                <td>{{ donation.date_add }}</td>
             </tr>
         {% endfor %}
     </table>
