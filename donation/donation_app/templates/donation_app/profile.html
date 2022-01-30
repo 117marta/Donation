@@ -15,6 +15,7 @@
     <h1>Przekazane dary:</h1>
     <table class="donation--table">
         <tr>
+            <th>Lp.</th>
             <th>Organizacja</th>
             <th>Ilość worków</th>
             <th>Zawartość</th>
@@ -24,6 +25,7 @@
         </tr>
         {% for donation in donations %}
             <tr class="donation--table--header">
+                <td><a href="/donation/{{ donation.pk }}">{{ forloop.counter }}</a></td>
                 <td>{{ donation.institution.name }}</td>
                 <td>{{ donation.quantity }}</td>
                 <td>{% for category in donation.categories.all %}
@@ -31,7 +33,7 @@
                     {% endfor %}</td>
                 <td>{{ donation.pick_up_date }}</td>
                 <td>{{ donation.pick_up_time }}</td>
-                {% if donation.picked_up %}
+                {% if donation.is_taken %}
                     <td style="color: greenyellow">Odebrano
                 {% else %}
                     <td style="color: red">Oczekuje

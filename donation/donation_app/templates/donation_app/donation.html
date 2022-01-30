@@ -1,0 +1,36 @@
+{% extends 'donation_app/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<div class="container">
+    <div>
+        <div class="slogan container container--90 text-center">
+            <h2>Szczegóły daru nr: {{ donation.pk }}</h2><br>
+        </div>
+    </div>
+
+
+    <h4>Wsparta organizacja: {{ donation.institution }}</h4>
+    <h4>Ilość 60l worków: {{ donation.quantity }}</h4>
+    <h4>Adres:</h4>
+    <ul>
+        <li><h3>Ulica: {{ donation.address }}</h3></li>
+        <li><h3>Miasto: {{ donation.city }}</h3></li>
+        <li><h3>Kod pocztowy: {{ donation.zip_code }}</h3></li>
+    </ul>
+    <h4>Telefon: {{ donation.phone_number }}</h4>
+
+    <h4>Data przekazania rzeczy: {{ donation.pick_up_date|date:"d E Y, l" }}</h4>
+    <h4>Godzina przekazania rzeczy: {{ donation.pick_up_time|time:"H:i"}}</h4>
+    <h4>Komentarz: {{ donation.pick_up_comment }}</h4>
+
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="donation_id" value="{{ donation.pk }}">
+        <button type="submit" name="status" value="taken">Zabrano</button>
+        <button type="submit" name="status" value="not_taken">Nie zabrano</button>
+    </form>
+</div>
+{% endblock content %}

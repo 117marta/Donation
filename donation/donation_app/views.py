@@ -158,9 +158,24 @@ class Profile(LoginRequiredMixin, View):
     login_url = '/login/'
 
     def get(self, request):
-        donations = Donation.objects.filter(user=request.user)
+        donations = Donation.objects.filter(user=request.user).order_by('is_taken')
         return render(request, 'donation_app/profile.html', {'donations': donations})
 
-    def get_object(self, **kwargs):
-        user_id = self.request.user.id
-        return get_object_or_404(User, pk=user_id)
+
+class DonationDetail(View):
+
+    def get(self, request, id):
+        donation = Donation.objects.get(pk=id)
+        return render(request, 'donation_app/donation.html', {'donation': donation})
+
+    def post(self, request, id):
+        donation_id = request.POST.get('donation_id')
+        status = request.POST.get('status')
+        donation = Donation.objects.get(pk=donation_id)
+        if status == 'taken':
+            donation.is_taken = True
+            donation.save()
+        else:
+            donation.is_taken = False
+            donation.save()
+        return redirect('profile')

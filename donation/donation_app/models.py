@@ -22,7 +22,7 @@ class Institution(models.Model):
     categories = models.ManyToManyField(Category)
 
     def __str__(self):
-        return f'{self.name}: {self.get_type_display()}'
+        return f'{self.name} ({self.get_type_display()})'
 
 
 class Donation(models.Model):
@@ -37,3 +37,8 @@ class Donation(models.Model):
     pick_up_time = models.TimeField()
     pick_up_comment = models.TextField()
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    is_taken = models.BooleanField(default=False)
+
+    def __str__(self):
+
+        return f"nr: {self.pk}/ co: {', '.join(cat.name for cat in self.categories.all())}/ użytkownik: {self.user.first_name}"
