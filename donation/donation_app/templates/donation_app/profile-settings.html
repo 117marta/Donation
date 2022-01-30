@@ -1,0 +1,51 @@
+{% extends 'donation_app/base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <li>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="change--info--container">
+    <h3>Zmień dane</h3>
+    <form name="change-info" method="post">
+        {% csrf_token %}
+        <ul style="list-style-type: none">
+            <li><label>Nowe imię:</label>
+                <input type="text" name="new_first_name" value="{{ user.first_name }}"></li>
+            <li><label>Nowe nazwisko:</label>
+                <input type="text" name="new_last_name" value="{{ user.last_name }}"></li>
+            <li><label>Nowy adres e-mail:</label>
+                <input type="email" name="new_email" value="{{ user.email }}"></li>
+            <li><label>Wpisz hasło:</label>
+                <input type="password" name="password"></li>
+            <li><label>Powtórz hasło:</label>
+                <input type="password" name="password2"></li>
+            <input type="submit" value="Zmień dane" name="new_info">
+        </ul>
+    </form>
+</div>
+
+<div class="change--info--container">
+    <h3>Zmień hasło</h3>
+    <form method="post">
+        {% csrf_token %}
+        <ul style="list-style-type: none">
+            <li><label>Stare hasło:</label>
+                <input type="password" name="old_password"></li>
+            <li><label>Nowe hasło:</label>
+                <input type="password" name="new_password"></li>
+            <li><label>Powtórz hasło:</label>
+                <input type="password" name="new_password2"></li>
+            <input type="submit" value="Zmień hasło" name="new_pass">
+        </ul>
+    </form>
+</div>
+
+{% endblock content %}

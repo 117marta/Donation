@@ -182,3 +182,62 @@ class DonationDetail(View):
             donation.is_taken = False
             donation.save()
         return redirect('profile')
+
+
+class ProfileSettings(LoginRequiredMixin, View):
+    login_url = 'login'
+
+    def get(self, request):
+        return render(request, 'donation_app/profile-settings.html')
+        # return redirect(f'/edit/{request.user.id}/')
+
+        # user_id = User.objects.get(pk=id)
+        # return redirect(f'/edit/{user_id}')
+
+    def post(self, request):
+        user = User.objects.get(pk=request.user.id)
+        new_first_name = request.POST.get('new_first_name')
+        new_last_name = request.POST.get('new_last_name')
+        new_email = request.POST.get('new_email')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        if 'new_info' in request.POST:
+            if not password or not password2:
+                messages.error(request, 'Do potwierdzenia zmian wpisz hasło')
+                return redirect('settings')
+            if password != password2:
+                messages.error(request, 'Hasła różnią się od siebie')
+                return redirect('settings')
+            if user.check_password(password) is False:
+                messages.error(request, 'Nieprawidłowe hasło')
+                return redirect('settings')
+
+            user.first_name = new_first_name
+            user.last_name = new_last_name
+            user.email = new_email
+            user.save()
+            messages.success(request, 'Pomyślnie zmieniono dane')
+            return render(request, 'donation_app/profile-settings.html')
+
+        if 'new_pass' in request.POST:
+            old_password = request.POST.get('old_password')
+            if old_password:
+                if user.check_password(old_password) is True:
+                    new_password = request.POST.get('new_password')
+                    new_password2 = request.POST.get('new_password2')
+                    if new_password == new_password2:
+                        user.set_password(new_password)
+                        user.save()
+                        login(request, user=user)
+                        messages.success(request, 'Pomyślnie zmieniono hasło')
+                        return redirect('settings')
+                    else:
+                        messages.error(request, 'Hasła różnią się od siebie')
+                        return redirect('settings')
+                else:
+                    messages.error(request, 'Wprowadzono błędne hasło')
+                    return redirect('settings')
+            else:
+                messages.error(request, 'Wpisz stare hasło')
+                return redirect('settings')

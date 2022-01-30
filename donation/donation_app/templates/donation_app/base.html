@@ -18,7 +18,7 @@
             Witaj {{ user.first_name }}!
             <ul class="dropdown">
               <li><a href="{% url 'profile' %}" class="btn btn--small btn--without-border">Profil</a></li>
-              <li><a href="#" class="btn btn--small btn--without-border">Ustawienia</a></li>
+              <li><a href="{% url 'settings' %}" class="btn btn--small btn--without-border">Ustawienia</a></li>
               {% if request.user.is_superuser %}
                 <li><a href="/admin/" class="btn btn--small btn--without-border">Panel administracyjny</a></li>
               {% endif %}
