@@ -210,8 +210,8 @@ document.addEventListener("DOMContentLoaded", function() {
         });
       });
 
-      // Form submit
-      this.$form.querySelector("form").addEventListener("submit", e => this.submit(e));
+      // Form submit  --> skomentować to!
+      // this.$form.querySelector("form").addEventListener("submit", e => this.submit(e));
     }
 
     /**
@@ -255,53 +255,76 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
   // STEP 3 - nie działa!!!!
-  // let checked_categories = []
+  let checked_categories = []
   // let categories_of_institution = []
-  // const categories_checkbox = document.querySelectorAll('input[name="categories"]');
-  // const categories = document.querySelectorAll('input[name="category"]')
-  // const divs = document.querySelectorAll('#step3')
-  // categories_checkbox.forEach(function (el){
-  //   el.addEventListener('change', function (event){
-  //     if(this.checked){
-  //       checked_categories.push(el.value)
-  //       console.log("Zaznaczone")
-  //       console.log(checked_categories)
-  //         categories.forEach(function (el){
-  //           if(checked_categories.includes(el.value)){
-  //             categories_of_institution.push(el.value)
-  //             console.log("SPRAWDZAM!")
-  //             el.parentElement.parentElement.style.display = "block";
-  //           }
-  //           else{
-  //             el.parentElement.parentElement.style.display = "none";
-  //           }
-  //         })
-  //     }
-  //     else if(this.checked == false){
-  //       checked_categories.splice(checked_categories.indexOf(el))
-  //       console.log(checked_categories)
-  //     }
-  //   })
-  // })
-
-
-  document.querySelector('#step2_btn').addEventListener("click", e=>{
-    let checkbox_vals = []
-    let checkedBoxes = document.querySelectorAll('input[name=categories]:checked');
-    console.log("BLA")
-    console.log(checkedBoxes)
-    let my_institutions = document.querySelector("div[data-step='3']").querySelectorAll(".form-group.form-group--checkbox")
-    checkedBoxes.forEach(el=>{
-      checkbox_vals.push(el.value)
-      console.log(el.value)
-    })
-    my_institutions.forEach(el=>{
-      let category = el.querySelector(".description > div:nth-child(3)").textContent
-      console.log(category)
-      if (!checkbox_vals.includes(category)){
-        el.style.display = "none"
+  const categories_checkbox = document.querySelectorAll('input[name="categories"]');
+  const categories = document.querySelectorAll('input[name="category"]')
+  const divs = document.querySelectorAll('#step3')
+  categories_checkbox.forEach(function (el){
+    el.addEventListener('change', function (event){
+      if(this.checked){
+        checked_categories.push(el.value)
+        console.log("Zaznaczone")
+        console.log(checked_categories)
+          categories.forEach(function (el){
+            if(checked_categories.includes(el.value)){
+              // categories_of_institution.push(el.value)
+              console.log("PRÓBA")
+              el.parentElement.parentElement.style.display = "block";
+            }
+            // else{
+            //   el.parentElement.parentElement.style.display = "none";
+            // }
+          })
+      }
+      else if(this.checked == false){
+        checked_categories.splice(checked_categories.indexOf(el))
+        console.log(checked_categories)
       }
     })
+  })
+
+
+  // STEP 4 - nie działa!!!!
+  const number_of_bags = document.querySelector('input[name="bags"]')
+  const summary_text = document.querySelector('#summary-details')
+  const summary_institution = document.querySelector('#summary-institution')
+  const summary_trigger = document.querySelector('#summaryTrigger')
+  const organizations = document.querySelectorAll('input[name="organization"]')
+
+  const street = document.querySelector('input[name="address"]')
+  const city = document.querySelector('input[name="city"]')
+  const postcode = document.querySelector('input[name="zip_code"]')
+  const phone = document.querySelector('input[name="phone"]')
+
+  const pick_up_date = document.querySelector('input[name="pick_up_date"]')
+  const pick_up_time = document.querySelector('input[name="pick_up_time"]')
+  const pick_up_comment = document.querySelector('textarea[name="pick_up_comment"]')
+
+  let checked_categories_names = []
+  const categories_checkbox_names = document.querySelectorAll('input[name="categories"]');
+  categories_checkbox_names.forEach(function (el){
+  el.addEventListener('change', function (event){
+    if(this.checked) {
+      checked_categories_names.push(el.id)
+    }})})
+
+  summary_trigger.addEventListener('click', function (){
+    summary_text.innerText = number_of_bags.value+" worki zawierające: " + checked_categories_names
+    document.querySelector('input[name="checked_categories_backend"]').value = checked_categories
+    organizations.forEach(function (organization){
+      if(organization.checked){
+        summary_institution.innerText = 'Dla fundacji "'+organization.value+'"'
+      }
+    })
+    document.querySelector('#street').innerText = street.value
+    document.querySelector('#city').innerText = city.value
+    document.querySelector('#zip_code').innerText = postcode.value
+    document.querySelector('#phone').innerText = phone.value
+
+    document.querySelector('#pick_up_date').innerText = pick_up_date.value
+    document.querySelector('#pick_up_time').innerText = pick_up_time.value
+    document.querySelector('#pick_up_comment').innerText = pick_up_comment.value
   })
 
 });

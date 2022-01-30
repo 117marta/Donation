@@ -36,14 +36,54 @@ class LandingPage(View):
 
 class AddDonation(LoginRequiredMixin, View):
     login_url = '/login/'
-    redirect_field_name = '/add_donation/'
+    # redirect_field_name = '/add_donation/'
 
     def get(self, request):
         institutions = Institution.objects.all()
-        categories = Category.objects.all().order_by('pk')
-        inst_cat = Institution.categories.through.objects.all()
-        ctx = {'institutions': institutions, 'categories': categories, 'inst_cat': inst_cat}
+        # categories = Category.objects.all().order_by('pk')
+        categories = Category.objects.all()
+        institution_categories = Institution.categories.through.objects.all()
+        ctx = {'institutions': institutions, 'categories': categories, 'institution_categories': institution_categories}
         return render(request, 'donation_app/form.html', context=ctx)
+
+    def post(self, request):
+        user = request.user
+        # chosen_categories = request.POST.getlist('categories')  # lista z nazwami kategorii
+        # categories = Category.objects.filter(name__in=chosen_categories)
+        # categories = request.POST.get('categories')
+
+        categories = request.POST.getlist('categories')
+        # institution = request.POST.get('organization')
+        institution = Institution.objects.get(name=request.POST.get('organization'))
+        quantity = request.POST.get('bags')
+        address = request.POST.get('address')
+        city = request.POST.get('city')
+        zip_code = request.POST.get('zip_code')
+        phone = request.POST.get('phone')
+        pick_up_date = request.POST.get('pick_up_date')
+        pick_up_time = request.POST.get('pick_up_time')
+        pick_up_comment = request.POST.get('pick_up_comment')
+
+        try:
+            new_donation = Donation.objects.create(
+                institution=institution,  # institution_id=institution
+                quantity=quantity,
+                address=address,
+                city=city,
+                zip_code=zip_code,
+                phone_number=phone,
+                pick_up_date=pick_up_date,
+                pick_up_time=pick_up_time,
+                pick_up_comment=pick_up_comment,
+                user=user,
+            )
+            new_donation.categories.set(categories)
+        # return redirect('confirmation')
+            new_donation.save()
+            return render(request, 'donation_app/form-confirmation.html')
+        except Exception:
+            messages.error(request, 'Coś poszło nie tak...')
+            return redirect('add-donation')
 
 
 class Login(View):
