@@ -115,7 +115,7 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaSx`cript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
@@ -133,3 +133,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
 #     'django.contrib.auth.hashers.BCryptPasswordHasher',
 # ]
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'testuser.django.123@gmail.com'
+EMAIL_HOST_PASSWORD = 'testuser123'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = "Aplikacja - dary"

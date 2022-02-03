@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from donation_app.views import LandingPage, AddDonation, Login, Register, Logout, Profile, DonationDetail,\
-    ProfileSettings
+    ProfileSettings, Activation
 from django.contrib.auth import views
 
 
@@ -30,4 +30,8 @@ urlpatterns = [
     path('profile/', Profile.as_view(), name='profile'),
     path('donation/<int:id>', DonationDetail.as_view()),
     path('edit/', ProfileSettings.as_view(), name='settings'),
+    # path('activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/',
+    #     Activate.as_view(), name='activate'),
+    # path('new-user/', Signup.as_view(), name='new-user'),
+    path('activate/<uidb64>/<token>/', Activation.as_view(), name='activate'),
 ]

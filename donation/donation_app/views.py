@@ -4,12 +4,19 @@ from .models import Category, Institution, Donation
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db import IntegrityError
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import DetailView
 import datetime
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+import six
+from .forms import SignupForm
+from django.contrib.sites.shortcuts import get_current_site
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_text
+from django.core.mail import EmailMessage
+from django.http import HttpResponse
 
 
 class LandingPage(View):
@@ -51,10 +58,8 @@ class AddDonation(LoginRequiredMixin, View):
         user = request.user
         # chosen_categories = request.POST.getlist('categories')  # lista z nazwami kategorii
         # categories = Category.objects.filter(name__in=chosen_categories)
-        # categories = request.POST.get('categories')
 
         categories = request.POST.getlist('categories')
-        # institution = request.POST.get('organization')
         institution = Institution.objects.get(name=request.POST.get('organization'))
         quantity = request.POST.get('bags')
         address = request.POST.get('address')
@@ -94,7 +99,7 @@ class Login(View):
 
     def post(self, request):
         try:
-            username = request.POST.get('email')
+            username = request.POST.get('email').casefold()
             password = request.POST.get('password')
             user = authenticate(request, username=username, password=password)
 
@@ -118,6 +123,15 @@ class Logout(View):
     def get(self, request):
         logout(request)
         return redirect('/')
+
+
+# PasswordTokenGenerator - class that is used to reset the password
+# In the above code, we generated the unique token for confirmation
+class TokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        return (six.text_type(user.pk) + six.text_type(timestamp) + six.text_type(user.is_active))
+
+account_activation_token = TokenGenerator()
 
 
 class Register(View):
@@ -147,9 +161,28 @@ class Register(View):
                 user.set_password(password)  # aby zapisać jako zahaszowane hasło
                 user.save()
 
-                messages.success(request, 'Pomyślnie utworzono konto.')
-                messages.success(request, 'Możesz się teraz zalogować.')
-                return redirect('/login/')
+                # messages.success(request, 'Pomyślnie utworzono konto.')
+                # messages.success(request, 'Możesz się teraz zalogować.')
+                # return redirect('/login/')
+
+
+                # Potwierdzenie/aktywacja konta
+                user.is_active = False  # użytkownik nie zaloguje się, dopóki nie potwierdzi adresu e-mail
+                user.save()
+                current_site = get_current_site(request)
+                mail_subject = 'Aktywuj swoje konto!'
+                message = render_to_string('donation_app/activate_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                    'token': account_activation_token.make_token(user)
+                })
+                email = EmailMessage(mail_subject, message, to=[email])
+                email.send()
+                messages.success(request, 'Potwierdź adres e-mail, aby dokończyć rejestrację.')
+                return render(request, 'donation_app/signup.html')
+
+
             except IntegrityError:
                 messages.error(request, 'Podany e-mail już istnieje!')
                 return redirect('register')
@@ -189,16 +222,12 @@ class ProfileSettings(LoginRequiredMixin, View):
 
     def get(self, request):
         return render(request, 'donation_app/profile-settings.html')
-        # return redirect(f'/edit/{request.user.id}/')
-
-        # user_id = User.objects.get(pk=id)
-        # return redirect(f'/edit/{user_id}')
 
     def post(self, request):
         user = User.objects.get(pk=request.user.id)
         new_first_name = request.POST.get('new_first_name')
         new_last_name = request.POST.get('new_last_name')
-        new_email = request.POST.get('new_email')
+        new_email = request.POST.get('new_email').casefold()
         password = request.POST.get('password')
         password2 = request.POST.get('password2')
 
@@ -241,3 +270,56 @@ class ProfileSettings(LoginRequiredMixin, View):
             else:
                 messages.error(request, 'Wpisz stare hasło')
                 return redirect('settings')
+
+
+# class Signup(View):
+#
+#     def get(self, request):
+#         form = SignupForm()
+#         return render(request, 'donation_app/signup.html', {'form': form})
+#
+#     def post(self, request):
+#         form = SignupForm(request.POST)
+#         if form.is_valid():
+#             user = form.save(commit=True)  # zapisanie formularza w pamięci, nie w BD
+#             user.is_active = False  # użytkownik nie zaloguje się, dopóki nie potwierdzi adresu e-mail
+#             user.save()
+#
+#             current_site = get_current_site(request)
+#             mail_subject = 'Aktywuj swoje konto!'
+#             message = render_to_string('donation_app/activate_email.html', {
+#                 'user': user,
+#                 'domain': current_site.domain,
+#                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+#                 'token': account_activation_token.make_token(user)
+#             })
+#             to_email = form.cleaned_data.get('email').casefold()
+#             email = EmailMessage(mail_subject, message, to=[to_email])
+#             email.send()
+#             messages.success(request, 'Potwierdź adres e-mail, aby dokończyć rejestrację.')
+#             return render(request, 'donation_app/signup.html', {'form': form})
+#         else:
+#             messages.error(request, 'Wystąpił błąd.')
+#             return render(request, 'donation_app/signup.html', {'form': form})
+
+
+class Activation(View):  # sprawdza prawidłowość tokena, a później pozwala na aktywację użytkownika i zalogowanie
+
+    def get(self, request, uidb64, token):
+        User = get_user_model()
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, ObjectDoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True  # użytkownik może się zalogować
+            user.save()
+            # login(request, user)  # automatyczne zalogowanie po kliknięciu w link aktywacyjny
+            messages.success(request, 'Dziękujemy za potwierdzenie adresu e-mail.')
+            messages.success(request, 'Możesz się teraz zalogować.')
+            return redirect('index')
+        else:
+            messages.error(request, 'Link aktywacyjny jest nieprawidłowy.')
+            return redirect('index')
