@@ -7,3 +7,6 @@ DATABASES = {
         'PASSWORD': 'coderslab',
     }
 }
+
+EMAIL_HOST_USER = 'testuser.django.123@gmail.com'
+EMAIL_HOST_PASSWORD = 'testuser123'
