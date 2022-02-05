@@ -41,6 +41,25 @@ class LandingPage(View):
         }
         return render(request, 'donation_app/index.html', context=ctx)
 
+    def post(self, request):
+        name = request.POST.get('name')
+        surname = request.POST.get('surname')
+        message = request.POST.get('message')
+        email_subject = f'Wiadomość od {request.user}. ' \
+                        f'{name} {surname} wysłał/a właśnie wiadomość przez formularz kontaktowy.'
+        superusers = User.objects.filter(is_superuser=True)
+        for sup_user in superusers:
+            contact_email = EmailMessage(
+                subject=email_subject,
+                body=message,
+                to=[sup_user.email],
+                headers={'Reply-To': 'example@mail.pl', 'bcc': 'ukryte_do_wiadomosci@gmail.com', 'cc': 'kopia@op.pl'},
+            )
+            contact_email.send(fail_silently=False)
+
+        messages.success(request, f'Wiadomość została wysłana. Dziękujemy {name.capitalize()} za kontakt!')
+        return redirect('index')
+
 
 class AddDonation(LoginRequiredMixin, View):
     login_url = '/login/'
