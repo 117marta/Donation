@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 import datetime
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import six
-from .forms import SignupForm
+from .forms import SignupForm, RemindPasswordForm, ResetPasswordForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
@@ -178,8 +178,7 @@ class Register(View):
                     email=email,
                 )
                 user.set_password(password)  # aby zapisać jako zahaszowane hasło
-                user.save()
-
+                # user.save()
                 # messages.success(request, 'Pomyślnie utworzono konto.')
                 # messages.success(request, 'Możesz się teraz zalogować.')
                 # return redirect('/login/')
@@ -194,7 +193,7 @@ class Register(View):
                     'user': user,
                     'domain': current_site.domain,
                     'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                    'token': account_activation_token.make_token(user)
+                    'token': account_activation_token.make_token(user),
                 })
                 email = EmailMessage(mail_subject, message, to=[email])
                 email.send()
@@ -342,3 +341,51 @@ class Activation(View):  # sprawdza prawidłowość tokena, a później pozwala 
         else:
             messages.error(request, 'Link aktywacyjny jest nieprawidłowy.')
             return redirect('index')
+
+
+class RemindPasswordView(View):
+
+    def get(self, request):
+        form = RemindPasswordForm()
+        return render(request=request, template_name='donation_app/remind-password.html', context={'form': form})
+
+    def post(self, request):
+        form = RemindPasswordForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except Exception:
+                user = None
+
+            if user:
+                current_site = get_current_site(request)
+                mail_subject = 'Resetuj hasło'
+                message = render_to_string(
+                    template_name='donation_app/remind-password.html',
+                    context={
+                        'user': user,
+                        'domain': current_site.domain,
+                        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                        'token': account_activation_token.make_token(user),
+                    }
+                )
+                email = EmailMessage(subject=mail_subject, body=message, to=[email])
+                email.send()
+                messages.success(request=request, message='Na podany adres e-mail wysłano link do zresetowania hasła.')
+                return redirect('remind-password')
+            else:
+                form = RemindPasswordForm()
+                messages.error(request=request, message='Nie ma takiego konta w bazie!')
+                return render(
+                    request=request,
+                    template_name='donation_app/remind-password.html',
+                    context={'form': form},
+                )
+
+        # messages.error(request=request, message='Błąd w formularzu!')
+        # return render(
+        #             request=request,
+        #             template_name='donation_app/remind-password.html',
+        #             context={'form': form},
+        #         )
