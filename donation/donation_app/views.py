@@ -352,7 +352,7 @@ class RemindPasswordView(View):
     def post(self, request):
         form = RemindPasswordForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            email = form.cleaned_data['email'].casefold()
             try:
                 user = User.objects.get(email=email)
             except Exception:
@@ -362,7 +362,7 @@ class RemindPasswordView(View):
                 current_site = get_current_site(request)
                 mail_subject = 'Resetuj hasło'
                 message = render_to_string(
-                    template_name='donation_app/remind-password.html',
+                    template_name='donation_app/activate-password.html',
                     context={
                         'user': user,
                         'domain': current_site.domain,
