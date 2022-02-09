@@ -389,3 +389,36 @@ class RemindPasswordView(View):
         #             template_name='donation_app/remind-password.html',
         #             context={'form': form},
         #         )
+
+
+class ResetPassword(View):
+
+    def get(self, request, uidb64, token):
+        try:
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except(TypeError, ValueError, OverflowError, ObjectDoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            form = ResetPasswordForm()
+            messages.success(request, 'Twoje hasło zostanie zresetowane.')
+            return render(request=request, template_name='donation_app/change-password.html', context={'form': form})
+        else:
+            messages.error(request, 'Link aktywacyjny jest nieprawidłowy.')
+            return redirect('reset-password')
+
+    def post(self, request, uidb64, token):
+        form = ResetPasswordForm(request.POST)
+        if form.is_valid():
+            uid = force_text(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+            password = request.POST['new_password']
+            user.set_password(password)
+            user.save()
+            messages.success(request, 'Pomyślnie zmieniono hasło! Możesz się teraz zalogować.')
+            # login(request=request, user=user)  # automatyczne logowanie po walidacji nowego hasła
+            return redirect('login')
+        else:
+            messages.error(request, 'Błędne dane w formularzu.')
+            return render(request=request, template_name='donation_app/change-password.html', context={'form': form})

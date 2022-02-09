@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from donation_app.views import LandingPage, AddDonation, Login, Register, Logout, Profile, DonationDetail,\
-    ProfileSettings, Activation, RemindPasswordView
+    ProfileSettings, Activation, RemindPasswordView, ResetPassword
 from django.contrib.auth import views
 
 
@@ -35,4 +35,5 @@ urlpatterns = [
     # path('new-user/', Signup.as_view(), name='new-user'),
     path('activate/<uidb64>/<token>/', Activation.as_view(), name='activate'),
     path('remind_password/', RemindPasswordView.as_view(), name='remind-password'),
+    path('reset_password/<uidb64>/<token>/', ResetPassword.as_view(), name='reset-password'),
 ]
