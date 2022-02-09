@@ -362,7 +362,7 @@ class RemindPasswordView(View):
                 current_site = get_current_site(request)
                 mail_subject = 'Resetuj hasło'
                 message = render_to_string(
-                    template_name='donation_app/activate-password.html',
+                    template_name='donation_app/reset-password.html',
                     context={
                         'user': user,
                         'domain': current_site.domain,
