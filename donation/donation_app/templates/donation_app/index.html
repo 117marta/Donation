@@ -103,13 +103,24 @@
           </li>
           {% endfor %}
         </ul>
-        <!-- Pagination
+
+        <!-- Pagination        -->
         <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
+            {% if items.0.has_previous %}
+                <a href="?page=1#help" class="btn btn--small btn--without-border">&laquo; first</a>
+                <a href="?page={{ items.0.previous_page_number }}#help" class="btn btn--small btn--without-border">Poprzednia</a>
+            {% endif %}
+
+            <li class="btn btn--small btn--without-border active">
+                {{ items.0.number }}
+<!--                Strona {{ items.0.number }} z {{ items.0.paginator.num_pages }}-->
+            </li>
+
+            {% if items.0.has_next %}
+                <a href="?page={{ items.0.next_page_number }}#help" class="btn btn--small btn--without-border">Następna</a>
+                <a href="?page={{ items.0.paginator.num_pages }}#help" class="btn btn--small btn--without-border">last &raquo;</a>
+            {% endif %}
         </ul>
-        -->
       </div>
 
 
@@ -136,15 +147,22 @@
           {% endfor %}
         </ul>
 
-        <!-- Pagination
+        <!-- Pagination        -->
         <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="3">3</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="4">4</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="5">5</a></li>
+            {% if items.1.has_previous %}
+                <a href="?page=1#help" class="btn btn--small btn--without-border">&laquo; first</a>
+                <a href="?page={{ items.0.previous_page_number }}#help" class="btn btn--small btn--without-border">Poprzednia</a>
+            {% endif %}
+
+            <li class="btn btn--small btn--without-border active">
+                {{ items.1.number }}
+            </li>
+
+            {% if items.1.has_next %}
+                <a href="?page={{ items.0.next_page_number }}#help" class="btn btn--small btn--without-border">Następna</a>
+                <a href="?page={{ items.0.paginator.num_pages }}#help" class="btn btn--small btn--without-border">last &raquo;</a>
+            {% endif %}
         </ul>
-        -->
       </div>
 
       <!-- SLIDE 3 -->
@@ -170,12 +188,22 @@
           {% endfor %}
         </ul>
 
-        <!-- Pagination
+        <!-- Pagination        -->
         <ul class="help--slides-pagination">
-          <li><a href="#" class="btn btn--small btn--without-border active" data-page="1">1</a></li>
-          <li><a href="#" class="btn btn--small btn--without-border" data-page="2">2</a></li>
+            {% if items.2.has_previous %}
+                <a href="?page=1#help" class="btn btn--small btn--without-border">&laquo; first</a>
+                <a href="?page={{ items.0.previous_page_number }}#help" class="btn btn--small btn--without-border">Poprzednia</a>
+            {% endif %}
+
+            <li class="btn btn--small btn--without-border active">
+                {{ items.2.number }}
+            </li>
+
+            {% if items.2.has_next %}
+                <a href="?page={{ items.0.next_page_number }}#help" class="btn btn--small btn--without-border">Następna</a>
+                <a href="?page={{ items.0.paginator.num_pages }}#help" class="btn btn--small btn--without-border">last &raquo;</a>
+            {% endif %}
         </ul>
-        -->
       </div>
     </section>
 {% endblock content %}

@@ -17,6 +17,7 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_text
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
+from django.core.paginator import Paginator
 
 
 class LandingPage(View):
@@ -34,6 +35,17 @@ class LandingPage(View):
                  Institution.objects.filter(type=2),
                  Institution.objects.filter(type=3),
                  ]
+        # page = request.GET.get('page')
+        # item_list = Institution.objects.filter(type=1)
+        # paginator = Paginator(item_list, 2)
+        # item1 = paginator.get_page(page)
+        for item in items:
+            if Institution.objects.filter(type=item.first().type):  # wybieramy po kolei typ 1, 2 i 3
+                item_list = Institution.objects.filter(type=item.first().type)  # pierwszy item -> jego typ (1, 2, 3)
+                paginator = Paginator(item_list, 1)  # jedno na stronie
+                page = request.GET.get('page')
+                new_item = paginator.get_page(page)
+                items[items.index(item)] = new_item  # List.index() - zwraca pozycję (nr) poszczególnego elementu
         ctx = {
             'bag_count': self.bag_count_quantity,
             'institution_count': institution_count,
