@@ -12,6 +12,11 @@ class MyUserAdmin(UserAdmin):
     list_filter = ('is_superuser', 'is_staff')
     readonly_fields = ['date_joined',]  # This information should never be changed by any user - not editable
     actions = ['delete_selected']
+    # fieldsets = (
+    #     (None, {'fields': ('username', 'date_joined')}),
+    #     ('Dane', {'fields': ('first_name', 'last_name', 'email', 'password')}),
+    #     ('Pozwolenia', {'fields': ('is_superuser', 'is_staff')}),
+    # )  # edycja pól na karcie użytkownika
 
     def get_form(self, request, obj=None, **kwargs):  # obj is the instance you currently operate on
         form = super().get_form(request, obj, **kwargs)
@@ -31,17 +36,18 @@ class MyUserAdmin(UserAdmin):
     #         self.message_user(request, 'Został ostatni admin!')
     #         return False  # nie będzie przycisku 'Usuń' na karcie użytkownika
 
-    def delete_selected(self, request, queryset):  # DOPRACOWAĆ!!!
-        cnt = User.objects.filter(is_superuser=True)
+    def delete_selected(self, request, queryset):
+        admins = User.objects.filter(is_superuser=True)
 
-        for obj in queryset:
-            if cnt.count() == 1:
+        for obj in queryset:  # tyle queryset ile zaznaczonych userów (obj)
+            if obj in User.objects.filter(username=request.user):
+                self.message_user(request, 'Nie można usunąć samego siebie!')
+            elif admins.count() == 1:
                 self.message_user(request, 'Nie możesz usunąć ostatniego admina!')
             else:
-                messages.success = f'Tyle jest adminów: {queryset.count()}'
-                self.message_user(request, f'Usunięto użytkownika: {obj.username}. Pozostało adminów: {queryset.count()}')
                 obj.delete()
-    delete_selected.short_description = 'Usuń wybranych użytkowników'
+                self.message_user(request, f'Usunięto użytkownika: {obj.username}. Pozostało adminów: {admins.count()}')
+    delete_selected.short_description = 'Usuń zaznaczonych użytkowników!'
 
 
 admin.site.register(Category)
