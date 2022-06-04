@@ -310,7 +310,18 @@ document.addEventListener("DOMContentLoaded", function() {
     }})})
 
   summary_trigger.addEventListener('click', function (){
-    summary_text.innerText = number_of_bags.value+" worki zawierające: " + checked_categories_names
+    // summary_text.innerText = number_of_bags.value+" worki zawierające: " + checked_categories_names
+  if (number_of_bags.value == 1) {
+    summary_text.innerText = 'Oddajesz ' + number_of_bags.value + ' worek zawierający: ' + checked_categories_names
+  } else if (number_of_bags.value == 2) {
+    summary_text.innerText = 'Oddajesz ' + number_of_bags.value + ' worki zawierające: ' + checked_categories_names
+  } else if (number_of_bags.value == 3) {
+    summary_text.innerText = 'Oddajesz ' + number_of_bags.value + ' worki zawierające: ' + checked_categories_names
+  } else if (number_of_bags.value == 4) {
+    summary_text.innerText = 'Oddajesz ' + number_of_bags.value + ' worki zawierające: ' + checked_categories_names
+  } else {
+    summary_text.innerText = 'Oddajesz ' + number_of_bags.value + ' worków zawierających: ' + checked_categories_names
+  }
     document.querySelector('input[name="checked_categories_backend"]').value = checked_categories
     organizations.forEach(function (organization){
       if(organization.checked){
