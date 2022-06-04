@@ -8,10 +8,12 @@ admin.site.unregister(User)
 
 @admin.register(User)
 class MyUserAdmin(UserAdmin):
-    list_display = ('username', 'email', 'is_superuser', 'is_staff')
-    list_filter = ('is_superuser', 'is_staff')
+# class MyUserAdmin(admin.ModelAdmin):
+    list_display = ('username', 'email', 'is_active', 'is_superuser', 'is_staff')  # wyświetlanie
+    ordering = ('-is_superuser', 'username')  # kolejność wyświetlania
+    list_filter = ('is_superuser', 'is_active', 'is_staff')  # filtrowanie
     readonly_fields = ['date_joined',]  # This information should never be changed by any user - not editable
-    actions = ['delete_selected']
+    actions = ['delete_selected', 'make_admin']
     # fieldsets = (
     #     (None, {'fields': ('username', 'date_joined')}),
     #     ('Dane', {'fields': ('first_name', 'last_name', 'email', 'password')}),
@@ -48,6 +50,11 @@ class MyUserAdmin(UserAdmin):
                 obj.delete()
                 self.message_user(request, f'Usunięto użytkownika: {obj.username}. Pozostało adminów: {admins.count()}')
     delete_selected.short_description = 'Usuń zaznaczonych użytkowników!'
+
+    def make_admin(self, request, queryset):
+        queryset.update(is_superuser=True)
+        self.message_user(request, 'Adminem został/a/li: {}.'.format(", ".join([u.username for u in queryset])))
+    make_admin.short_description = 'Awansuj na admina!'
 
 
 admin.site.register(Category)
