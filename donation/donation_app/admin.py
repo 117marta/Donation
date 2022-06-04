@@ -13,7 +13,7 @@ class MyUserAdmin(UserAdmin):
     ordering = ('-is_superuser', 'username')  # kolejność wyświetlania
     list_filter = ('is_superuser', 'is_active', 'is_staff')  # filtrowanie
     readonly_fields = ['date_joined',]  # This information should never be changed by any user - not editable
-    actions = ['delete_selected', 'make_admin']
+    actions = ['delete_selected', 'make_admin', 'degrade_user', 'activate_user', 'deactivate_user']
     # fieldsets = (
     #     (None, {'fields': ('username', 'date_joined')}),
     #     ('Dane', {'fields': ('first_name', 'last_name', 'email', 'password')}),
@@ -55,6 +55,21 @@ class MyUserAdmin(UserAdmin):
         queryset.update(is_superuser=True)
         self.message_user(request, 'Adminem został/a/li: {}.'.format(", ".join([u.username for u in queryset])))
     make_admin.short_description = 'Awansuj na admina!'
+
+    def degrade_user(self, request, queryset):
+        queryset.update(is_superuser=False)
+        self.message_user(request, f'Zdegradowano: {", ".join([u.username for u in queryset])}.')
+    degrade_user.short_description = 'Zdegraduj użytkownika/ów!'
+
+    def activate_user(self, request, queryset):
+        queryset.update(is_active=True)
+        self.message_user(request, f'Aktywowano użytownika/ów: {", ".join([u.username for u in queryset])}.')
+    activate_user.short_description = 'Aktywuj użytkownika/ów!'
+
+    def deactivate_user(self, request, queryset):
+        queryset.update(is_active=False)
+        self.message_user(request, f'Dezaktywowano użytkownia/ów: {", ".join([u.username for u in queryset])}.')
+    deactivate_user.short_description = 'Dezaktywuj użytkownika/ów!'
 
 
 admin.site.register(Category)
